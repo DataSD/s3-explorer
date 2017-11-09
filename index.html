@@ -26,9 +26,20 @@ permissions and limitations under the License.
             #wrapper { padding-left: 0; }
             #page-wrapper { width: 100%; padding: 5px 15px; }
             #tb-s3objects { width: 100% !Important; }
-            a { color: #00B7FF; }
-            body { font: 14px "Lucida Grande", Helvetica, Arial, sans-serif; }
-            td { font: 12px "Lucida Grande", Helvetica, Arial, sans-serif; }
+            a { color: #37424a; font-weight: bold; font-size: 13px; }
+            body { font: 14px "Open Sans", Helvetica, Arial, sans-serif; }
+            td { font: 12px "Open Sans", Helvetica, Arial, sans-serif; }
+            .hidden {
+                display: none;
+            }
+
+            .panel-heading {
+                background: #0098db
+            }
+            #titleContainer {
+                font-weight: bold;
+                font-size: 18px;
+            }
         </style>
     </head>
 
@@ -42,19 +53,18 @@ permissions and limitations under the License.
                     <div class="panel panel-primary">
 
                         <!-- Panel including bucket/folder information and controls -->
-                        <div class="panel-heading clearfix">
+                        <div id="panelHeading" class="panel-heading clearfix">
                             <!-- Bucket selection and breadcrumbs -->
                             <div class="btn-group pull-left">
-                                <div class="pull-left">
-                                    City of San Diego&nbsp;
+                                <div id="titleContainer" class="pull-left">
                                 </div>
                                 <!-- Bucket selection -->
-                                <div class="btn pull-left" id="bucket">
+                                <div class="btn pull-left hidden" id="bucket">
                                     <i id="bucket-chooser" style="cursor: pointer;" class="fa fa-bitbucket fa-2x" title="Switch to a different S3 Bucket"></i>
                                 </div>
                                 <!-- Bucket breadcrumbs -->
                                 <div class="btn pull-right">
-                                    <ul id="breadcrumb" class="btn breadcrumb pull-right">
+                                    <ul id="breadcrumb" class="btn breadcrumb hidden pull-right">
                                         <li class="active dropdown">
                                             <a href="#">&lt;bucket&gt;</a>
                                         </li>
@@ -62,7 +72,7 @@ permissions and limitations under the License.
                                 </div>
                             </div>
                             <!-- Folder/Bucket radio group and progress spinner -->
-                            <div class="btn-group pull-right">
+                            <div id="folderBucketControl" class="btn-group pull-right hidden">
                                 <div class="checkbox pull-left">
                                     <label>
                                         <input type="checkbox" id="hidefolders">&nbsp;Hide folders?
@@ -121,7 +131,13 @@ var s3exp_config = {
     Region: 'us-east-1',
     Bucket: 'themis.datasd.org',
     Prefix: 'lab/',
-    Delimiter: '/'
+    Delimiter: '/',
+    display: {
+      title: "City of San Diego",
+      showBucketSelector: false,
+      showFolderBucketControl: false,
+      showBreadcrumb: false
+    }
 };
 
 var s3exp_lister = null;
@@ -133,6 +149,21 @@ console.log('Region: ' + AWS.config.region);
 // Initialize S3 SDK and the moment library (for time formatting utilities)
 var s3 = new AWS.S3();
 moment().format();
+
+function initDisplay() {
+    var displayConfig = this.s3exp_config.display;
+    document.title = displayConfig.title;
+    document.getElementById('titleContainer').innerHTML = displayConfig.title;
+
+    if (displayConfig.showFolderBucketControl === true)
+      document.querySelector('#folderBucketControl').classList.remove('hidden');
+    if (displayConfig.showBucketSelector === true)
+      document.querySelector('#bucket').classList.remove('hidden');
+    if (displayConfig.showBreadcrumb === true)
+      document.querySelector('#breadcrumb').classList.remove('hidden');
+
+
+}
 
 function bytesToSize(bytes) {
     var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
@@ -373,6 +404,8 @@ function resetDepth() {
 
 $(document).ready(function(){
     console.log('ready');
+
+    initDisplay();
 
     // Click handler for refresh button (to invoke manual refresh)
     $('#bucket-loader').click(function(e) {
