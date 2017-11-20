@@ -136,7 +136,7 @@ var s3exp_config = {
       title: "City of San Diego",
       showBucketSelector: false,
       showFolderBucketControl: false,
-      showBreadcrumb: false
+      showBreadcrumb: true
     }
 };
 
@@ -216,7 +216,8 @@ function fullpath2pathname(path) {
 // Convert cars/vw/ to vw/
 function prefix2folder(prefix) {
     var parts = prefix.split('/');
-    return parts[parts.length-2] + '/';
+    //return parts[parts.length-2] + '/';
+    return parts[parts.length-2];
 }
 
 // We are going to generate bucket/folder breadcrumbs. The resulting HTML will
